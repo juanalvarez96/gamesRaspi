@@ -74,7 +74,6 @@ void fsm_setup_leds(fsm_t* arkano_fsm);
 //------------------------------------------------------
 // SUBRUTINAS DE ATENCION A LAS INTERRUPCIONES
 //------------------------------------------------------
-PI_THREAD(thread_explora_teclado);
 PI_THREAD(thread_leds);
 PI_THREAD(thread_pulsadores);
 PI_THREAD (thread_timer);

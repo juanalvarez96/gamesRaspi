@@ -37,9 +37,13 @@ void delay_until(unsigned int next) {
 
 int CompruebaTeclaPulsada(fsm_t* this) {
 	int result;
+	int result1;
+	int result2;
 
 	piLock(FLAGS_KEY);
-	result = (flags & FLAG_TECLA);
+	result1 = (flags & FLAG_RAQUETA_IZQUIERDA);
+	result2 = (flags & FLAG_RAQUETA_DERECHA);
+	result = result1 || result2;
 	piUnlock(FLAGS_KEY);
 
 	return result;
@@ -120,7 +124,6 @@ static void boton_isr_left (void) {
 	flags |= FLAG_RAQUETA_IZQUIERDA;
 	piUnlock(FLAGS_KEY);
 	//}
-	printf("IZQ \n");
 }
 
 static void boton_isr_right(void) {
@@ -129,9 +132,12 @@ static void boton_isr_right(void) {
 	flags |= FLAG_RAQUETA_DERECHA;
 	piUnlock(FLAGS_KEY);
 	//}
-	printf("DER \n");
+
 }
 
+static void boton_isr_quit(void){
+	exit(0);
+}
 //------------------------------------------------------
 // FUNCIONES DE ACCION
 //------------------------------------------------------
@@ -141,7 +147,6 @@ static void boton_isr_right(void) {
 // que resulte necesaria para el desarrollo del juego.
 void InicializaJuego (fsm_t* fsm) {
 	piLock (FLAGS_KEY);
-	flags &= ~FLAG_TECLA;
 	flags &= ~FLAG_PELOTA;
 	flags &= ~FLAG_RAQUETA_IZQUIERDA;
 	flags &= ~FLAG_RAQUETA_DERECHA;
@@ -211,200 +216,226 @@ void MovimientoPelota (fsm_t* fsm) {
 
 	switch(juego.arkanoPi.pelota.yv){
 	case(-1):
-																																										switch(juego.arkanoPi.pelota.xv) {
-																																										case(1):// Diagonal arriba izquierda
-																																												if( HayLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y-1) == 1 ) { // Ladrillos
-																																													EliminaLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y-1);
-																																													juego.arkanoPi.pelota.yv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
+		switch(juego.arkanoPi.pelota.xv) {
+		case(1):// Diagonal arriba izquierda
+		if( HayLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y-1) == 1 ) { // Ladrillos
+			EliminaLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y-1);
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
 
-																																												}
-																																												else if( juego.arkanoPi.pelota.x == 9 ) { // Limite izquierda
-																																													juego.arkanoPi.pelota.xv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
-																																													juego.arkanoPi.pelota.yv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else { // Ningun obstaculo
-																																													juego.arkanoPi.pelota.x++;
-																																													juego.arkanoPi.pelota.y--;
-																																												}
-																																										break;
-																																										case(0):// Vertical arriba
-																																												if( HayLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y-1)==1 ) { // Ladrillos
-																																													EliminaLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y-1);
-																																													juego.arkanoPi.pelota.yv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
-																																													juego.arkanoPi.pelota.yv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else { // Ningun obstaculo
-																																													juego.arkanoPi.pelota.y--;
-																																												}
-																																										break;
-																																										case(-1):// Diagonal arriba derecha
-																																												if( HayLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y-1)==1 ) { // Ladrillos
-																																													EliminaLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y-1);
-																																													juego.arkanoPi.pelota.yv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else if( juego.arkanoPi.pelota.x == 0 ) { // Limite derecha
-																																													juego.arkanoPi.pelota.xv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
-																																													juego.arkanoPi.pelota.yv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else { // Ningun obstaculo
-																																													juego.arkanoPi.pelota.x--;
-																																													juego.arkanoPi.pelota.y--;
-																																												}
-																																										break;
-																																										}
+		}
+		else if( juego.arkanoPi.pelota.x == 9 ) { // Limite izquierda
+			juego.arkanoPi.pelota.xv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else { // Ningun obstaculo
+			juego.arkanoPi.pelota.x++;
+			juego.arkanoPi.pelota.y--;
+		}
+		break;
+		case(0):// Vertical arriba
+		if( HayLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y-1)==1 ) { // Ladrillos
+			EliminaLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y-1);
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else { // Ningun obstaculo
+			juego.arkanoPi.pelota.y--;
+		}
+		break;
+		case(-1):// Diagonal arriba derecha
+		if( HayLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y-1)==1 ) { // Ladrillos
+			EliminaLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y-1);
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else if( juego.arkanoPi.pelota.x == 0 ) { // Limite derecha
+			juego.arkanoPi.pelota.xv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else { // Ningun obstaculo
+			juego.arkanoPi.pelota.x--;
+			juego.arkanoPi.pelota.y--;
+		}
+		break;
+		}
 	break;
-																																										case(1):
-																																										switch(juego.arkanoPi.pelota.xv) {
-																																										case(1):// Diagonal abajo izquierda
-																																												if( juego.arkanoPi.pelota.x == 9 ) { // Limite izquierda
-																																													juego.arkanoPi.pelota.xv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else if( HayLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y+1)==1 ) { // Ladrillos
-																																													EliminaLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y+1);
-																																													juego.arkanoPi.pelota.yv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else if( juego.arkanoPi.pelota.y+1 == 6 ) { // Toca raqueta
-																																													if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = -1;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = 0;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = 1;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else { //  Va a pasar limite inferior
-																																														juego.arkanoPi.pelota.y++;
-																																														juego.arkanoPi.pelota.x++;
-																																													}
-																																												}
-																																												else { // Ningun obstaculo
-																																													juego.arkanoPi.pelota.y++;
-																																													juego.arkanoPi.pelota.x++;
-																																												}
-																																										break;
-																																										case(0):// Vertical abajo
-																																												if( juego.arkanoPi.pelota.y+1 == 6 ) {// Toca raqueta
-																																													if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = -1;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
-																																														juego.arkanoPi.pelota.yv *= -1;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = 1;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else { //  Va a pasar limite inferior
-																																														juego.arkanoPi.pelota.y++;
-																																													}
-																																												}
-																																												else { // Ningun obstaculo
-																																													juego.arkanoPi.pelota.y++;
-																																												}
-																																										break;
-																																										case(-1):// Diagonal abajo derecha
-																																												if( juego.arkanoPi.pelota.x == 0 ) { // Limite derecha
-																																													juego.arkanoPi.pelota.xv*=-1;
-																																													piLock(FLAGS_KEY);
-																																													flags |= FLAG_PELOTA;
-																																													piUnlock(FLAGS_KEY);
-																																												}
-																																												else if( juego.arkanoPi.pelota.y+1 == 6 ) { // Toca raqueta
-																																													if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = -1;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = 0;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
-																																														juego.arkanoPi.pelota.yv = -1;
-																																														juego.arkanoPi.pelota.xv = 1;
-																																														piLock(FLAGS_KEY);
-																																														flags |= FLAG_PELOTA;
-																																														piUnlock(FLAGS_KEY);
-																																													}
-																																													else { //  Va a pasar limite inferior
-																																														juego.arkanoPi.pelota.y++;
-																																														juego.arkanoPi.pelota.x--;
-																																													}
-																																												}
-																																												else { // Ningun obstaculo
-																																													juego.arkanoPi.pelota.y++;
-																																													juego.arkanoPi.pelota.x--;
-																																												}
-																																										break;
-																																										}
-																																										break;
+	case(1):
+		switch(juego.arkanoPi.pelota.xv) {
+		case(1):// Diagonal abajo izquierda
+		if( juego.arkanoPi.pelota.x == 9 ) { // Limite izquierda
+			juego.arkanoPi.pelota.xv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else if( HayLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y+1)==1 ) { // Ladrillos
+			EliminaLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y+1);
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else if( juego.arkanoPi.pelota.y+1 == 6 ) { // Toca raqueta
+			if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = -1;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = 0;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = 1;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else { //  Va a pasar limite inferior
+				juego.arkanoPi.pelota.y++;
+				juego.arkanoPi.pelota.x++;
+				ActualizaPantalla(&(juego.arkanoPi));
+				piLock(FLAGS_KEY);
+				flags |= FLAG_FINAL_JUEGO;
+				piUnlock(FLAGS_KEY);
+			}
+		}
+		else { // Ningun obstaculo
+			juego.arkanoPi.pelota.y++;
+			juego.arkanoPi.pelota.x++;
+		}
+		break;
+		case(0):// Vertical abajo
+		if( juego.arkanoPi.pelota.y+1 == 6 ) {// Toca raqueta
+			if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = -1;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
+				juego.arkanoPi.pelota.yv *= -1;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = 1;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else { //  Va a pasar limite inferior
+				juego.arkanoPi.pelota.y++;
+				ActualizaPantalla(&(juego.arkanoPi));
+				piLock(FLAGS_KEY);
+				flags |= FLAG_FINAL_JUEGO;
+				piUnlock(FLAGS_KEY);
+			}
+		}
+		else if( HayLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y+1)==1 ) { // Ladrillos
+			EliminaLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y+1);
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else { // Ningun obstaculo
+			juego.arkanoPi.pelota.y++;
+		}
+		break;
+		case(-1):// Diagonal abajo derecha
+		if( juego.arkanoPi.pelota.x == 0 ) { // Limite derecha
+			juego.arkanoPi.pelota.xv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else if( juego.arkanoPi.pelota.y+1 == 6 ) { // Toca raqueta
+			if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = -1;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = 0;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
+				juego.arkanoPi.pelota.yv = -1;
+				juego.arkanoPi.pelota.xv = 1;
+				piLock(FLAGS_KEY);
+				flags |= FLAG_PELOTA;
+				piUnlock(FLAGS_KEY);
+			}
+			else { //  Va a pasar limite inferior
+				juego.arkanoPi.pelota.y++;
+				juego.arkanoPi.pelota.x--;
+				ActualizaPantalla(&(juego.arkanoPi));
+				piLock(FLAGS_KEY);
+				flags |= FLAG_FINAL_JUEGO;
+				piUnlock(FLAGS_KEY);
+			}
+		}
+		else if( HayLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y+1)==1 ) { // Ladrillos
+			EliminaLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y+1);
+			juego.arkanoPi.pelota.yv*=-1;
+			piLock(FLAGS_KEY);
+			flags |= FLAG_PELOTA;
+			piUnlock(FLAGS_KEY);
+		}
+		else { // Ningun obstaculo
+			juego.arkanoPi.pelota.y++;
+			juego.arkanoPi.pelota.x--;
+		}
+		break;
+		}
+	break;
 	}
 	ActualizaPantalla(&(juego.arkanoPi));
-	if(CalculaLadrillosRestantes((tipo_pantalla*)(&(juego.arkanoPi.ladrillos))) == 0 || juego.arkanoPi.pelota.y == 6) {
+	if(CalculaLadrillosRestantes((tipo_pantalla*)(&(juego.arkanoPi.ladrillos))) == 0) {
 		piLock(FLAGS_KEY);
 		flags |= FLAG_FINAL_JUEGO;
 		piUnlock(FLAGS_KEY);
@@ -427,7 +458,8 @@ void FinalJuego (fsm_t* fsm) {
 // necesarias para dar comienzo a una nueva partida.
 void ReseteaJuego (fsm_t* fsm) {
 	piLock(FLAGS_KEY);
-	flags &= ~FLAG_TECLA;
+	flags &= ~FLAG_RAQUETA_IZQUIERDA;
+	flags &= ~FLAG_RAQUETA_DERECHA;
 	piUnlock(FLAGS_KEY);
 
 	InicializaArkanoPi(&(juego.arkanoPi));
@@ -503,61 +535,61 @@ void EnciendeLeds(fsm_t* fsm){
 	digitalWrite(22,LOW);
 	switch (contador_col){
 	case (0):
-															digitalWrite(14,LOW);
+	digitalWrite(14,LOW);
 	digitalWrite(17,LOW);
 	digitalWrite(18,LOW);
 	digitalWrite(22,LOW);
 	break;
 	case(1):
-															digitalWrite(14,HIGH);
+																	digitalWrite(14,HIGH);
 	digitalWrite(17,LOW);
 	digitalWrite(18,LOW);
 	digitalWrite(22,LOW);
 	break;
 	case(2):
-															digitalWrite(14,LOW);
+																	digitalWrite(14,LOW);
 	digitalWrite(17,HIGH);
 	digitalWrite(18,LOW);
 	digitalWrite(22,LOW);
 	break;
 	case (3):
-															digitalWrite(14,HIGH);
+																	digitalWrite(14,HIGH);
 	digitalWrite(17,HIGH);
 	digitalWrite(18,LOW);
 	digitalWrite(22,LOW);
 	break;
 	case (4):
-															digitalWrite(14,LOW);
+																	digitalWrite(14,LOW);
 	digitalWrite(17,LOW);
 	digitalWrite(18,HIGH);
 	digitalWrite(22,LOW);
 	break;
 	case (5):
-															digitalWrite(14,HIGH);
+																	digitalWrite(14,HIGH);
 	digitalWrite(17,LOW);
 	digitalWrite(18,HIGH);
 	digitalWrite(22,LOW);
 	break;
 	case (6):
-															digitalWrite(14,LOW);
+																	digitalWrite(14,LOW);
 	digitalWrite(17,HIGH);
 	digitalWrite(18,HIGH);
 	digitalWrite(22,LOW);
 	break;
 	case (7):
-															digitalWrite(14,HIGH);
+																	digitalWrite(14,HIGH);
 	digitalWrite(17,HIGH);
 	digitalWrite(18,HIGH);
 	digitalWrite(22,LOW);
 	break;
 	case (8):
-															digitalWrite(14,LOW);
+																	digitalWrite(14,LOW);
 	digitalWrite(17,LOW);
 	digitalWrite(18,LOW);
 	digitalWrite(22,HIGH);
 	break;
 	case (9):
-															digitalWrite(14,HIGH);
+																	digitalWrite(14,HIGH);
 	digitalWrite(17,LOW);
 	digitalWrite(18,LOW);
 	digitalWrite(22,HIGH);
@@ -609,45 +641,24 @@ int systemSetup (void) {
 
 	pinMode(5,INPUT); //PULSADORES
 	pinMode(6,INPUT);
+	pinMode(12,INPUT);
 	pullUpDnControl(5, PUD_DOWN);
 	pullUpDnControl(6, PUD_DOWN);
+	pullUpDnControl(12, PUD_DOWN);
+	wiringPiISR(6,INT_EDGE_FALLING,boton_isr_right);
+	wiringPiISR(5,INT_EDGE_FALLING,boton_isr_left);
+	wiringPiISR(12, INT_EDGE_FALLING,boton_isr_quit);
 
-	int x = 0;
 	int y = 0;
-	int z = 0;
-	int w = 0;
 	piLock(STD_IO_BUFFER_KEY);
-
 	// Lanzamos thread para explorar teclado
-	x = piThreadCreate(thread_explora_teclado);
 	y = piThreadCreate(thread_leds);
-	z = piThreadCreate(thread_pulsadores);
-	w = piThreadCreate(thread_timer);
-
-	if(x!=0) {
-		printf("it didn't start! (x) \n");
-		piUnlock(STD_IO_BUFFER_KEY);
-		return -1;
-	}
 
 	if(y!=0) {
 		printf("it didn't start! (y) \n");
 		piUnlock(STD_IO_BUFFER_KEY);
 		return -1;
 	}
-
-	if(z!=0) {
-		printf("it didn't start! (z) \n");
-		piUnlock(STD_IO_BUFFER_KEY);
-		return -1;
-	}
-
-	if(w!=0) {
-		printf("it didn't start! (z) \n");
-		piUnlock(STD_IO_BUFFER_KEY);
-		return -1;
-	}
-
 	piUnlock(STD_IO_BUFFER_KEY);
 	return 1;
 }
@@ -669,51 +680,6 @@ void fsm_setup_leds(fsm_t* arkano_fsm) {
 //------------------------------------------------------
 // PI THREADs
 //------------------------------------------------------
-PI_THREAD(thread_explora_teclado) {
-	//(void) piHiPri(1);
-	int teclaPulsada;
-	while (1) {
-		//delay(5); // wiringPi pauses program
-
-		piLock(STD_IO_BUFFER_KEY);
-
-		if(kbhit()) { // Funcion que detecta si se ha producido pulsacion de tecla alguna
-			teclaPulsada = kbread(); // Funcion que devuelve la tecla pulsada
-
-			switch(teclaPulsada) {
-			case 'i': // Desplazamiento de la raqueta hacia la izquierda
-				piLock(FLAGS_KEY);
-				flags |= FLAG_RAQUETA_IZQUIERDA;
-				piUnlock(FLAGS_KEY);
-				break;
-
-			case 'o': // Desplazamiento de la raqueta hacia la derecha
-				piLock(FLAGS_KEY);
-				flags |= FLAG_RAQUETA_DERECHA;
-				piUnlock(FLAGS_KEY);
-				break;
-
-			case 'p': // Actualiza posicion de la pelota
-				piLock(FLAGS_KEY);
-				flags |= FLAG_PELOTA;
-				piUnlock(FLAGS_KEY);
-				break;
-
-			case 'q':
-				exit(0);
-				break;
-
-			default:
-				piLock(FLAGS_KEY);
-				flags |= FLAG_TECLA;
-				piUnlock(FLAGS_KEY);
-				break;
-			}
-		}
-
-		piUnlock(STD_IO_BUFFER_KEY);
-	}
-}
 
 PI_THREAD(thread_leds) {
 	//(void) piHiPri(2);
@@ -734,30 +700,12 @@ PI_THREAD(thread_leds) {
 	fsm_setup_leds(leds_fsm);
 	myTimer = tmr_new(timer_isr);
 	tmr_startms(myTimer, 1);
+	myTimerPelota = tmr_new(timer_isr_pelota);
+	tmr_startms(myTimerPelota, 500);
 	while(1){
 		fsm_fire(leds_fsm);
 	}
 	fsm_destroy(leds_fsm);
-}
-
-PI_THREAD(thread_pulsadores) {
-	//wiringPiISR(5,INT_EDGE_FALLING,boton_isr_left);
-	wiringPiISR(6,INT_EDGE_FALLING,boton_isr_right);
-	wiringPiISR(5,INT_EDGE_FALLING,boton_isr_left);
-	/*
-	while(1) {
-		while (digitalRead (6) == HIGH) {
-			delay (1) ;
-		}
-		debounceTime = millis () + DEBOUNCE_TIME ;
-	}
-	 */
-
-}
-
-PI_THREAD (thread_timer){
-	myTimerPelota = tmr_new(timer_isr_pelota);
-	tmr_startms(myTimerPelota, 500);
 }
 
 int main () {
