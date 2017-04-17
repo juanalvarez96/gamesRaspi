@@ -166,7 +166,7 @@ void InicializaArkanoPi(tipo_arkanoPi *p_arkanoPi) {
 	ReseteaLadrillos((tipo_pantalla*)(&(p_arkanoPi->ladrillos)));
 	ReseteaPelota((tipo_pelota*)(&(p_arkanoPi->pelota)));
 	ReseteaRaqueta((tipo_raqueta*)(&(p_arkanoPi->raqueta)));
-	// Pongo pantalla inicial
+
 	PintaMensajeInicialPantalla((tipo_pantalla*)&(p_arkanoPi->pantalla),(tipo_pantalla*)&(p_arkanoPi->pantalla));
 }
 
