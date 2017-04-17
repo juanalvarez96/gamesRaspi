@@ -1,3 +1,4 @@
+
 #include "arkanoPi_1.h" // Crear y usar la maquina de estados
 
 // Definicion estados
@@ -89,7 +90,7 @@ int CompruebaTimer1(fsm_t* this) {
 // FUNCIONES DEL TIMER
 //------------------------------------------------------
 
-//Función encargada de arrancar el timer, esto es decir como va a funcionar
+//Funciï¿½n encargada de arrancar el timer, esto es decir como va a funcionar
 
 
 static void timer_start(int ms) {
@@ -98,28 +99,34 @@ static void timer_start(int ms) {
 	struct itimerspec spec; //estructura que defina periodo y valor inicial
 	struct sigevent se; //estructura para decir tipo de notificacion
 	 se.sigev_notify = SIGEV_THREAD; //OJO:Creo que esto se puede quitar porque no usamos therad para timer!!Igual es timer_isr
-	 se.sigev_value.sival_ptr = &timerid; //VAlor asiciado a la señal o argumento para thread
+	 se.sigev_value.sival_ptr = &timerid; //VAlor asiciado a la seï¿½al o argumento para thread
 	 se.sigev_notify_function = timer_isr; //Funcion a la que se llama
 	 se.sigev_notify_attributes = NULL;
 	 spec.it_value.tv_nsec = (ms % 1000) * 1000000;
 	 spec.it_interval.tv_sec = ms / 1000;
 	 spec.it_interval.tv_nsec = (ms % 1000) * 1000000;
 	 result = timer_create (CLOCK_REALTIME, &se, &timerid); //Decimos si se ha creado bien o no.0 bien, 1 mal
-	 printf("result after create = %d\n", result); //Importante para debuggear y ver que se crea bien el autómata.NO BORRAR
+	 printf("result after create = %d\n", result); //Importante para debuggear y ver que se crea bien el autï¿½mata.NO BORRAR
 	 fflush(stdout); // Will now print everything in the stdout
-	 printf("result after settime = %d\n", result); //Importante para debuggear y ver que se crea bien el autómata.NO BORRAR
+	 printf("result after settime = %d\n", result); //Importante para debuggear y ver que se crea bien el autï¿½mata.NO BORRAR
 	 fflush(stdout);
 
 }
 
-//Acción a realizar cuando se arranca el timer
+//Acciï¿½n a realizar cuando se arranca el timer
 
 static void timer_isr (union sigval arg) {
 
 	flags |= FLAG_TIMER1;
 
-	//OJO:CADA VEZ QUE SALTE EL TEMPORIZADOR SE LLAMARÁ A ESTA FUNCIÓN.
+	//OJO:CADA VEZ QUE SALTE EL TEMPORIZADOR SE LLAMARï¿½ A ESTA FUNCIï¿½N.
 }
+
+=======
+
+#include "arkanoPi_1.h"
+
+static volatile tipo_juego juego;
 
 //------------------------------------------------------
 // FUNCIONES DE ACCION
@@ -143,6 +150,11 @@ void InicializaJuego (fsm_t* fsm) {
 	PintaPelota((tipo_pelota*)(&(juego.arkanoPi.pelota)),(tipo_pantalla*)(&(juego.arkanoPi.pantalla)));
 	PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
 	piUnlock (STD_IO_BUFFER_KEY);
+  
+void InicializaJuego (void) {
+	PintaLadrillos((tipo_pantalla*)(&(juego.arkanoPi.ladrillos)),(tipo_pantalla*)(&(juego.arkanoPi.pantalla)));
+	PintaRaqueta((tipo_raqueta*)(&(juego.arkanoPi.raqueta)),(tipo_pantalla*)(&(juego.arkanoPi.pantalla)));
+	PintaPelota((tipo_pelota*)(&(juego.arkanoPi.pelota)),(tipo_pantalla*)(&(juego.arkanoPi.pantalla)));
 }
 
 // void MueveRaquetaIzquierda (void): funcion encargada de ejecutar
@@ -163,10 +175,17 @@ void MueveRaquetaIzquierda (fsm_t* fsm) {
 	ActualizaPantalla(&(juego.arkanoPi));
 	PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
 	piUnlock (STD_IO_BUFFER_KEY);
+
+void MueveRaquetaIzquierda (void) {
+	if( juego.arkanoPi.raqueta.x<9 ){
+			juego.arkanoPi.raqueta.x+=1;
+		}
+	ActualizaPantalla(&(juego.arkanoPi));
 }
 
 // void MueveRaquetaDerecha (void): funciÃ³n similar a la anterior
 // encargada del movimiento hacia la derecha.
+
 void MueveRaquetaDerecha (fsm_t* fsm) {
 	piLock(FLAGS_KEY);
 	flags &= ~FLAG_RAQUETA_DERECHA;
@@ -178,6 +197,12 @@ void MueveRaquetaDerecha (fsm_t* fsm) {
 	ActualizaPantalla(&(juego.arkanoPi));
 	PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
 	piUnlock (STD_IO_BUFFER_KEY);
+
+void MueveRaquetaDerecha (void) {
+	if( juego.arkanoPi.raqueta.x>-2 ){
+			juego.arkanoPi.raqueta.x -=1;
+		}
+	ActualizaPantalla(&(juego.arkanoPi));
 }
 
 int HayLadrillo(int x,int y) {
@@ -185,6 +210,8 @@ int HayLadrillo(int x,int y) {
 		return 1;
 	}
 	return 0;
+		}
+		return 0;
 }
 
 void EliminaLadrillo(int x,int y) {
@@ -409,6 +436,141 @@ void MovimientoPelota (fsm_t* fsm) {
 	}
 	PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
 	piUnlock (STD_IO_BUFFER_KEY);
+void MovimientoPelota (void) {
+
+	switch(juego.arkanoPi.pelota.yv){
+		case(-1):
+				switch(juego.arkanoPi.pelota.xv) {
+					case(1):// Diagonal arriba izquierda
+						if( HayLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y-1) == 1 ) { // Ladrillos
+							EliminaLadrillo(juego.arkanoPi.pelota.x+1,juego.arkanoPi.pelota.y-1);
+							juego.arkanoPi.pelota.yv*=-1;
+								}
+						else if( juego.arkanoPi.pelota.x == 9 ) { // Limite izquierda
+								juego.arkanoPi.pelota.xv*=-1;
+						}
+						else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
+								juego.arkanoPi.pelota.yv*=-1;
+						}
+						else { // Ningun obstaculo
+							juego.arkanoPi.pelota.x++;
+							juego.arkanoPi.pelota.y--;
+						}
+							break;
+					case(0):// Vertical arriba
+						if( HayLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y-1)==1 ) { // Ladrillos
+							EliminaLadrillo(juego.arkanoPi.pelota.x,juego.arkanoPi.pelota.y-1);
+							juego.arkanoPi.pelota.yv*=-1;
+						}
+						else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
+							juego.arkanoPi.pelota.yv*=-1;
+						}
+						else { // Ningun obstaculo
+						juego.arkanoPi.pelota.y--;
+						}
+							break;
+					case(-1):// Diagonal arriba derecha
+						if( HayLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y-1)==1 ) { // Ladrillos
+							EliminaLadrillo(juego.arkanoPi.pelota.x-1,juego.arkanoPi.pelota.y-1);
+							juego.arkanoPi.pelota.yv*=-1;
+						}
+						else if( juego.arkanoPi.pelota.x == 0 ) { // Limite derecha
+								juego.arkanoPi.pelota.xv*=-1;
+						}
+						else if( juego.arkanoPi.pelota.y == 0 ) { // Limite superior
+								juego.arkanoPi.pelota.yv*=-1;
+						}
+						else { // Ningun obstaculo
+							juego.arkanoPi.pelota.x--;
+							juego.arkanoPi.pelota.y--;
+						}
+							break;
+				}
+		break;
+		case(1):
+				switch(juego.arkanoPi.pelota.xv) {
+					case(1):// Diagonal abajo izquierda
+						if( juego.arkanoPi.pelota.x == 9 ) { // Limite izquierda
+							juego.arkanoPi.pelota.xv*=-1;
+						}
+						else if( juego.arkanoPi.pelota.y+1 == 6 ) { // Toca raqueta
+							if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
+									juego.arkanoPi.pelota.yv = -1;
+									juego.arkanoPi.pelota.xv = -1;
+							}
+							else if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
+									juego.arkanoPi.pelota.yv = -1;
+									juego.arkanoPi.pelota.xv = 0;
+							}
+							else if( juego.arkanoPi.pelota.x+1 == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
+									juego.arkanoPi.pelota.yv = -1;
+									juego.arkanoPi.pelota.xv = 1;
+							}
+							else { //  Va a pasar limite inferior
+								juego.arkanoPi.pelota.y++;
+								juego.arkanoPi.pelota.x++;
+							}
+						}
+						else { // Ningun obstaculo
+							juego.arkanoPi.pelota.y++;
+							juego.arkanoPi.pelota.x++;
+						}
+							break;
+					case(0):// Vertical abajo
+						if( juego.arkanoPi.pelota.y+1 == 6 ) {// Toca raqueta
+							if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
+								juego.arkanoPi.pelota.yv = -1;
+								juego.arkanoPi.pelota.xv = -1;
+							}
+							else if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
+								juego.arkanoPi.pelota.yv *= -1;
+							}
+							else if( juego.arkanoPi.pelota.x == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
+								juego.arkanoPi.pelota.yv = -1;
+								juego.arkanoPi.pelota.xv = 1;
+							}
+							else { //  Va a pasar limite inferior
+								juego.arkanoPi.pelota.y++;
+							}
+						}
+						else { // Ningun obstaculo
+							juego.arkanoPi.pelota.y++;
+						}
+							break;
+					case(-1):// Diagonal abajo derecha
+						if( juego.arkanoPi.pelota.x == 0 ) { // Limite izquierda
+							juego.arkanoPi.pelota.xv*=-1;
+						}
+						else if( juego.arkanoPi.pelota.y+1 == 6 ) { // Toca raqueta
+							if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x ) {// Extremo derecho raqueta
+									juego.arkanoPi.pelota.yv = -1;
+									juego.arkanoPi.pelota.xv = -1;
+							}
+							else if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x+1 ) {// Centro raqueta
+									juego.arkanoPi.pelota.yv = -1;
+									juego.arkanoPi.pelota.xv = 0;
+							}
+							else if( juego.arkanoPi.pelota.x-1 == juego.arkanoPi.raqueta.x+2 ) {// Extremo izquierdo raqueta
+									juego.arkanoPi.pelota.yv = -1;
+									juego.arkanoPi.pelota.xv = 1;
+							}
+							else { //  Va a pasar limite inferior
+								juego.arkanoPi.pelota.y++;
+								juego.arkanoPi.pelota.x--;
+							}
+						}
+						else { // Ningun obstaculo
+							juego.arkanoPi.pelota.y++;
+							juego.arkanoPi.pelota.x--;
+						}
+							break;
+				}
+		break;
+	}
+	ActualizaPantalla(&(juego.arkanoPi));
+	if( juego.arkanoPi.pelota.y == 6 || CalculaLadrillosRestantes((tipo_pantalla*)(&(juego.arkanoPi.ladrillos))) == 0 ) {// Acaba partida
+			juego.estado = WAIT_END;
+		}
 }
 
 // void FinalJuego (void): funciÃ³n encargada de mostrar en la ventana de
@@ -421,6 +583,9 @@ void FinalJuego (fsm_t* fsm) {
 	int result = 20-CalculaLadrillosRestantes((tipo_pantalla*)(&(juego.arkanoPi.ladrillos)));
 	printf("RESULTADO:\n %d\n",result);
 	piUnlock(STD_IO_BUFFER_KEY);
+void FinalJuego (void) {
+	int result = 20-CalculaLadrillosRestantes((tipo_pantalla*)(&(juego.arkanoPi.ladrillos)));
+	printf("RESULTADO:\n %d\n",result);
 }
 
 //void ReseteaJuego (void): funciÃ³n encargada de llevar a cabo la
@@ -455,8 +620,10 @@ void EnciendeLeds(fsm_t* fsm){
 	}
 }
 
-
-
+void ReseteaJuego (void) {
+	InicializaArkanoPi(&(juego.arkanoPi));
+	juego.estado = WAIT_START;
+}
 //------------------------------------------------------
 // FUNCIONES DE INICIALIZACION
 //------------------------------------------------------
@@ -588,7 +755,7 @@ int main () {
 	fsm_t* leds_fsm = fsm_new (WAIT_COL1, state_tabla2, NULL);
 
 
-	//Configuración e inicalización del sistema
+	//Configuraciï¿½n e inicalizaciï¿½n del sistema
 	systemSetup();
 	fsm_setup(arkano_fsm);
 	fsm_setup(leds_fsm);
@@ -603,4 +770,63 @@ int main () {
 
 	fsm_destroy(arkano_fsm);
 	fsm_destroy(leds_fsm);
+	// A completar por el alumno..
+
+}
+
+int main ()
+{
+	ReseteaJuego();
+	 while (1) {
+		 if(kbhit()) { // Funcion que detecta si se ha producido pulsacion de tecla alguna
+			juego.teclaPulsada = kbread(); // Funcion que devuelve la tecla pulsada
+
+			// Interpretacion de las pulsaciones para cada posible estado del sistema
+			if( juego.estado == WAIT_START ) { // Cualquier pulsacion da comienzo al juego...
+				InicializaJuego();
+				juego.estado = WAIT_PUSH;
+				PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
+				printf("DE START A PUSH \n");
+			}
+			else if( juego.estado == WAIT_END ) { // Cualquier nos devuelve al estado inicial...
+				FinalJuego();
+				if( juego.teclaPulsada=='i' || juego.teclaPulsada=='o' ) {
+					ReseteaJuego();
+					juego.estado = WAIT_START;
+					PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
+					printf("DE END A START \n");
+				}
+				printf("NO SALGO DE END");
+			}
+			else { // Si estamos jugando...
+				switch(juego.teclaPulsada) {
+					case 'i': // Desplazamiento de la raqueta hacia la izquierda
+						MueveRaquetaIzquierda();
+						PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
+						printf("MUEVO IZQ \n");
+						break;
+
+					case 'o': // Desplazamiento de la raqueta hacia la derecha
+						MueveRaquetaDerecha();
+						PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
+						printf("MUEVO DER \n");
+						break;
+
+					case 'p': // Actualiza posicion de la pelota
+						MovimientoPelota();
+						PintaPantallaPorTerminal(&(juego.arkanoPi.pantalla));
+						printf("MUEVO PELOTA \n");
+						break;
+
+					case 'q':
+						exit(0);
+						break;
+
+					default:
+						printf("INVALID KEY!!!\n");
+						break;
+				}
+			}
+		}
+	}
 }

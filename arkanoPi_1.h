@@ -63,6 +63,33 @@ void MovimientoPelota (fsm_t* fsm);
 void FinalJuego (fsm_t* fsm);
 void ReseteaJuego (fsm_t* fsm);
 void EnciendeLeds(fsm_t* fsm); //Ojo igual el parámetro que le has pasado es otro aunque lo dudo mucho
+//#include <wiringPi.h> // A descomentar en posteriores sesiones
+
+#include "kbhit.h" // para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
+
+#include "arkanoPiLib.h"
+
+typedef enum {
+	WAIT_START,
+	WAIT_PUSH,
+	WAIT_END} tipo_estados_juego;
+
+typedef struct {
+	tipo_arkanoPi arkanoPi;
+	tipo_estados_juego estado;
+	char teclaPulsada;
+} tipo_juego;
+
+//------------------------------------------------------
+// FUNCIONES DE ACCION
+//------------------------------------------------------
+
+void InicializaJuego (void);
+void MueveRaquetaIzquierda (void);
+void MueveRaquetaDerecha (void);
+void MovimientoPelota (void);
+void FinalJuego (void);
+void ReseteaJuego (void);
 
 //------------------------------------------------------
 // FUNCIONES DE INICIALIZACION
@@ -74,5 +101,4 @@ int systemSetup (void);
 // SUBRUTINAS DE ATENCION A LAS INTERRUPCIONES
 //------------------------------------------------------
 PI_THREAD(thread_explora_teclado);
-
 #endif /* ARKANOPI_H_ */
