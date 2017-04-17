@@ -63,16 +63,16 @@ void ReseteaRaqueta(tipo_raqueta *p_raqueta) {
 // el display para presentar un mensaje de bienvenida al usuario
 void PintaMensajeInicialPantalla (tipo_pantalla *p_pantalla, tipo_pantalla *p_pantalla_inicial) {
 	int msj[MATRIZ_ANCHO][MATRIZ_ALTO]={
-				{0,0,0,0,0,0,0},
-				{0,0,0,0,0,0,0},
-				{0,1,1,0,1,0,0},
-				{0,1,1,0,0,1,0},
-				{0,0,0,0,0,1,0},
-				{0,0,0,0,0,1,0},
-				{0,1,1,0,0,1,0},
-				{0,1,1,0,1,0,0},
-				{0,0,0,0,0,0,0},
-				{0,0,0,0,0,0,0},
+				{0,1,1,1,1,1,0},
+				{0,1,0,0,0,1,0},
+				{0,1,1,1,1,1,0},
+				{0,1,1,1,1,1,0},
+				{0,1,1,1,1,1,0},
+				{0,1,0,1,0,1,0},
+				{0,1,1,1,1,1,0},
+				{0,1,1,1,1,1,0},
+				{0,0,0,1,0,0,0},
+				{0,1,1,1,1,1,0},
 		};
 
 	int i, j=0;
