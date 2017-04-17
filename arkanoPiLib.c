@@ -17,7 +17,7 @@ int ladrillos_basico[MATRIZ_ANCHO][MATRIZ_ALTO] = {
 // FUNCIONES DE INICIALIZACION / RESET
 //------------------------------------------------------
 
-void ReseteaMatriz(tipo_pantalla *p_pantalla) {
+void ReseteaMatriz(tipo_pantalla_arkanoPi *p_pantalla) {
 	int i, j = 0;
 
 	for(i=0;i<MATRIZ_ANCHO;i++) {
@@ -27,7 +27,7 @@ void ReseteaMatriz(tipo_pantalla *p_pantalla) {
 	}
 }
 
-void ReseteaLadrillos(tipo_pantalla *p_ladrillos) {
+void ReseteaLadrillos(tipo_pantalla_arkanoPi *p_ladrillos) {
 	int i, j = 0;
 
 	for(i=0;i<MATRIZ_ANCHO;i++) {
@@ -37,7 +37,7 @@ void ReseteaLadrillos(tipo_pantalla *p_ladrillos) {
 	}
 }
 
-void ReseteaPelota(tipo_pelota *p_pelota) {
+void ReseteaPelota(tipo_pelota_arkanoPi *p_pelota) {
 	// Pelota inicialmente en el centro de la pantalla
 	p_pelota->x = MATRIZ_ANCHO/2;
 	p_pelota->y = MATRIZ_ALTO/2 - 1;
@@ -47,7 +47,7 @@ void ReseteaPelota(tipo_pelota *p_pelota) {
 	p_pelota->xv = 0;
 }
 
-void ReseteaRaqueta(tipo_raqueta *p_raqueta) {
+void ReseteaRaqueta(tipo_raqueta_arkanoPi *p_raqueta) {
 	// Raqueta inicialmente en el centro de la pantalla
 	p_raqueta->x = MATRIZ_ANCHO/2 - p_raqueta->ancho/2;
 	p_raqueta->y = MATRIZ_ALTO - 1;
@@ -61,7 +61,7 @@ void ReseteaRaqueta(tipo_raqueta *p_raqueta) {
 
 // void PintaMensajeInicialPantalla (...): metodo encargado de aprovechar
 // el display para presentar un mensaje de bienvenida al usuario
-void PintaMensajeInicialPantalla (tipo_pantalla *p_pantalla, tipo_pantalla *p_pantalla_inicial) {
+void PintaMensajeInicialPantalla (tipo_pantalla_arkanoPi *p_pantalla, tipo_pantalla_arkanoPi *p_pantalla_inicial) {
 	int msj[MATRIZ_ANCHO][MATRIZ_ALTO]={
 				{0,0,0,0,0,0,0},
 				{0,0,0,0,0,0,0},
@@ -89,7 +89,7 @@ void PintaMensajeInicialPantalla (tipo_pantalla *p_pantalla, tipo_pantalla *p_pa
 // terminal o consola. Este mÃ©todo sera fundamental para facilitar
 // la labor de depuraciÃ³n de errores (por ejemplo, en la programaciÃ³n
 // de los diferentes movimientos tanto de la raqueta como de la pelota).
-void PintaPantallaPorTerminal  (tipo_pantalla *p_pantalla) {
+void PintaPantallaPorTerminal  (tipo_pantalla_arkanoPi *p_pantalla) {
 	int i, j=0;
 	printf("PANTALLA \n");
 	for(i=0;i<MATRIZ_ALTO;i++) {
@@ -102,7 +102,7 @@ void PintaPantallaPorTerminal  (tipo_pantalla *p_pantalla) {
 
 // void PintaLadrillos(...): funcion encargada de â€œpintarâ€� los ladrillos
 // en sus correspondientes posiciones dentro del Ã¡rea de juego
-void PintaLadrillos(tipo_pantalla *p_ladrillos, tipo_pantalla *p_pantalla) {
+void PintaLadrillos(tipo_pantalla_arkanoPi *p_ladrillos, tipo_pantalla_arkanoPi *p_pantalla) {
 	int i, j = 0;
 
 	for(i=0;i<MATRIZ_ANCHO;i++) {
@@ -114,7 +114,7 @@ void PintaLadrillos(tipo_pantalla *p_ladrillos, tipo_pantalla *p_pantalla) {
 
 // void PintaRaqueta(...): funcion encargada de â€œpintarâ€� la raqueta
 // en su posicion correspondiente dentro del Ã¡rea de juego
-void PintaRaqueta(tipo_raqueta *p_raqueta, tipo_pantalla *p_pantalla) {
+void PintaRaqueta(tipo_raqueta_arkanoPi *p_raqueta, tipo_pantalla_arkanoPi *p_pantalla) {
 	int i, j = 0;
 
 	for(i=0;i<RAQUETA_ANCHO;i++) {
@@ -128,7 +128,7 @@ void PintaRaqueta(tipo_raqueta *p_raqueta, tipo_pantalla *p_pantalla) {
 
 // void PintaPelota(...): funcion encargada de â€œpintarâ€� la pelota
 // en su posicion correspondiente dentro del Ã¡rea de juego
-void PintaPelota(tipo_pelota *p_pelota, tipo_pantalla *p_pantalla) {
+void PintaPelota(tipo_pelota_arkanoPi *p_pelota, tipo_pantalla_arkanoPi *p_pantalla) {
 	if( (p_pelota->x >= 0) && (p_pelota->x < MATRIZ_ANCHO) ) {
 		if( (p_pelota->y >= 0) && (p_pelota->y < MATRIZ_ALTO) ) {
 			p_pantalla->matriz[p_pelota->x][p_pelota->y] = 1;
@@ -150,11 +150,11 @@ void PintaPelota(tipo_pelota *p_pelota, tipo_pantalla *p_pantalla) {
 // en memoria que representa el Ã¡rea de juego y su correspondiente estado.
 void ActualizaPantalla(tipo_arkanoPi* p_arkanoPi) {
     // Borro toda la pantalla
-	ReseteaMatriz((tipo_pantalla*)(&(p_arkanoPi->pantalla)));
+	ReseteaMatriz((tipo_pantalla_arkanoPi*)(&(p_arkanoPi->pantalla)));
 	// Pinto todo de nuevo
-	PintaLadrillos((tipo_pantalla*)(&(p_arkanoPi->ladrillos)),(tipo_pantalla*)(&(p_arkanoPi->pantalla)));
-	PintaRaqueta((tipo_raqueta*)(&(p_arkanoPi->raqueta)),(tipo_pantalla*)(&(p_arkanoPi->pantalla)));
-	PintaPelota((tipo_pelota*)(&(p_arkanoPi->pelota)),(tipo_pantalla*)(&(p_arkanoPi->pantalla)));
+	PintaLadrillos((tipo_pantalla_arkanoPi*)(&(p_arkanoPi->ladrillos)),(tipo_pantalla_arkanoPi*)(&(p_arkanoPi->pantalla)));
+	PintaRaqueta((tipo_raqueta_arkanoPi*)(&(p_arkanoPi->raqueta)),(tipo_pantalla_arkanoPi*)(&(p_arkanoPi->pantalla)));
+	PintaPelota((tipo_pelota_arkanoPi*)(&(p_arkanoPi->pelota)),(tipo_pantalla_arkanoPi*)(&(p_arkanoPi->pantalla)));
 }
 
 // void InicializaArkanoPi(...): metodo encargado de la inicializaciÃ³n
@@ -162,18 +162,18 @@ void ActualizaPantalla(tipo_arkanoPi* p_arkanoPi) {
 // desarrollo del juego y su visualizacion.
 void InicializaArkanoPi(tipo_arkanoPi *p_arkanoPi) {
 
-	ReseteaMatriz((tipo_pantalla*)(&(p_arkanoPi->pantalla)));
-	ReseteaLadrillos((tipo_pantalla*)(&(p_arkanoPi->ladrillos)));
-	ReseteaPelota((tipo_pelota*)(&(p_arkanoPi->pelota)));
-	ReseteaRaqueta((tipo_raqueta*)(&(p_arkanoPi->raqueta)));
+	ReseteaMatriz((tipo_pantalla_arkanoPi*)(&(p_arkanoPi->pantalla)));
+	ReseteaLadrillos((tipo_pantalla_arkanoPi*)(&(p_arkanoPi->ladrillos)));
+	ReseteaPelota((tipo_pelota_arkanoPi*)(&(p_arkanoPi->pelota)));
+	ReseteaRaqueta((tipo_raqueta_arkanoPi*)(&(p_arkanoPi->raqueta)));
 
-	PintaMensajeInicialPantalla((tipo_pantalla*)&(p_arkanoPi->pantalla),(tipo_pantalla*)&(p_arkanoPi->pantalla));
+	PintaMensajeInicialPantalla((tipo_pantalla_arkanoPi*)&(p_arkanoPi->pantalla),(tipo_pantalla_arkanoPi*)&(p_arkanoPi->pantalla));
 }
 
 // int CalculaLadrillosRestantes(...): funciÃ³n encargada de evaluar
 // el estado de ocupacion del area de juego por los ladrillos y
 // devolver el numero de estos
-int CalculaLadrillosRestantes(tipo_pantalla *p_ladrillos) {
+int CalculaLadrillosRestantes(tipo_pantalla_arkanoPi *p_ladrillos) {
 	int num_ladrillos_restantes = 0;
 	int i, j = 0;
 
