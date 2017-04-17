@@ -14,6 +14,11 @@
 #include "kbhit.h" // para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
 #include "arkanoPiLib.h"
 
+#include "fsm.h" // crear y ejecutar la maquina de estados
+#include "tmr.h" // crear y ejecutar timer
+
+#define CLK_MS 5 // PERIODO ACTUALIZACION MAQUINA ESTADOS
+
 /*typedef enum {
 	WAIT_START,
 	WAIT_PUSH,
@@ -35,6 +40,8 @@ typedef struct {
 #define FLAG_RAQUETA_IZQUIERDA 0x04
 #define FLAG_RAQUETA_DERECHA 0x08
 #define FLAG_FINAL_JUEGO 0x16
+
+#define FLAG_TIMER1 0x01
 #define FLAG_TIMER1 0x32
 
 // Lock/Unlock
@@ -63,6 +70,7 @@ void MovimientoPelota (fsm_t* fsm);
 void FinalJuego (fsm_t* fsm);
 void ReseteaJuego (fsm_t* fsm);
 void EnciendeLeds(fsm_t* fsm); //Ojo igual el parámetro que le has pasado es otro aunque lo dudo mucho
+
 //#include <wiringPi.h> // A descomentar en posteriores sesiones
 
 #include "kbhit.h" // para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
@@ -95,10 +103,14 @@ void ReseteaJuego (void);
 // FUNCIONES DE INICIALIZACION
 //------------------------------------------------------
 int systemSetup (void);
-
+void fsm_setup(fsm_t* arkano_fsm);
+void fsm_setup_leds(fsm_t* arkano_fsm);
 
 //------------------------------------------------------
 // SUBRUTINAS DE ATENCION A LAS INTERRUPCIONES
 //------------------------------------------------------
 PI_THREAD(thread_explora_teclado);
+PI_THREAD(thread_leds);
+PI_THREAD(thread_pulsadores);
+PI_THREAD (thread_timer);
 #endif /* ARKANOPI_H_ */
